@@ -18,3 +18,6 @@ If you want it to start with Windows, run:
 ```bash
 npm run install-startup
 ```
+
+if you need help you can contact me on discord: enki.dll
+
