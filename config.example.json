@@ -1,0 +1,5 @@
+{
+  "clientId": "PUT_YOUR_DISCORD_APPLICATION_ID_HERE",
+  "showPaused": false,
+  "debug": false
+}

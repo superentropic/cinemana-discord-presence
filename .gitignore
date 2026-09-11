@@ -1,0 +1,6 @@
+node_modules/
+config.json
+artwork-cache.json
+presence-status.json
+npm-debug.log*
+
