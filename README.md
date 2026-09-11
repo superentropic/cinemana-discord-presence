@@ -1,9 +1,20 @@
 # Cinemana Discord Presence
 
-Shows what you are watching on Cinemana in Discord: title, poster, episode, and playback progress.
+This shows what you're watching on Cinemana in your Discord status.
 
-1. Copy `config.example.json` to `config.json` and add your Discord Application ID.
-2. Run `npm install` and `npm start`.
-3. Load the `extension` folder through Chrome or Edge Developer Mode.
+It shows the name, poster, episode, and how much time is left.
 
-Run `npm run install-startup` to start it when you sign in to Windows.
+How to use it:
+
+1. Copy `config.example.json` and rename it to `config.json`.
+2. Put your Discord app ID in there.
+3. Run `npm install`.
+4. Run `npm start`.
+5. Open `chrome://extensions` or `edge://extensions`.
+6. Turn on Developer Mode and load the `extension` folder.
+
+If you want it to start with Windows, run:
+
+```bash
+npm run install-startup
+```
