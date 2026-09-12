@@ -104,7 +104,7 @@ async function publish() {
     const accepted = await rpc.request('SET_ACTIVITY', { pid: process.pid, activity });
     fs.writeFileSync(path.join(ROOT, 'presence-status.json'), JSON.stringify({ updatedAt: new Date().toISOString(), sent: activity, accepted }, null, 2));
     lastPresenceFingerprint = fingerprint;
-    if (config.debug) console.log('[Cinemana Presence]', { title, details, state });
+    if (config.debug) console.log('[Cinemana Presence]', { title, details: activity.details, state: activity.state || '' });
   } catch (error) {
     fs.writeFileSync(path.join(ROOT, 'presence-status.json'), JSON.stringify({ error: error.message }, null, 2));
     if (config.debug) console.error(error.message);
