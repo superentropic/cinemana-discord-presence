@@ -1,5 +1,5 @@
 # Cinemana Discord Presence
-
+(THIS CANNOT WORK OUTSIDE OF IRAQ)
 This shows what you're watching on Cinemana in your Discord status.
 
 It shows the name, poster, episode, and how much time is left.
