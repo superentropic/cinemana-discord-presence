@@ -76,7 +76,7 @@ async function publish() {
     // presentation ("Listening to Spotify" + the current track below).
     type: 3,
     name: title.slice(0, 128),
-    details: [latest.status || (latest.playing ? 'Now watching' : 'Paused'), latest.episode].filter(Boolean).join(' · ').slice(0, 128),
+    details: [title, latest.episode].filter(Boolean).join(' · ').slice(0, 128),
     assets: poster ? { large_image: poster, large_text: title.slice(0, 128) } : undefined,
     instance: false
   };
