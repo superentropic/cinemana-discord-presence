@@ -69,13 +69,7 @@ async function publish() {
   const duration = Number(latest.duration) || 0;
   const rate = Math.max(0.1, Number(latest.playbackRate) || 1);
   const position = Math.min(duration || Infinity, (Number(latest.position) || 0) + (latest.playing ? age / 1000 * rate : 0));
-  const elapsed = formatClock(position);
-  const remaining = formatClock(Math.max(0, duration - position));
-  const total = formatClock(duration);
   const details = `Watching ${title}`;
-  const stateParts = [];
-  if (duration > 0) stateParts.push(`${elapsed} / ${total} · ${remaining} left`);
-  const state = stateParts.join(' · ');
   const poster = artwork.peek(latest.imdbId) || externalImage(latest.poster);
   const activity = {
     // Discord renders type 3 as "Watching", matching the familiar Spotify
@@ -83,7 +77,6 @@ async function publish() {
     type: 3,
     name: title.slice(0, 128),
     details: [latest.status || (latest.playing ? 'Now watching' : 'Paused'), latest.episode].filter(Boolean).join(' · ').slice(0, 128),
-    state: state ? state.slice(0, 128) : undefined,
     assets: poster ? { large_image: poster, large_text: title.slice(0, 128) } : undefined,
     instance: false
   };
