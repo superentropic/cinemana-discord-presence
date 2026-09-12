@@ -32,6 +32,14 @@
   }
 
   function findEpisode() {
+    // Cinemana exposes the actual video selection as e.g.
+    // "Season: 1 | Episode: 1". This is the source of truth and avoids
+    // confusing the current item with other episodes in the menu.
+    const exact = [...document.querySelectorAll('*')]
+      .map(element => clean(element.textContent).match(/^Season:\s*(\d+)\s*\|\s*Episode:\s*(\d+)$/i))
+      .find(Boolean);
+    if (exact) return `Season ${exact[1]} · Episode ${exact[2]}`;
+
     const visible = element => element.getClientRects().length > 0;
     // Cinemana puts "Now Playing" in a small child element, not consistently
     // inside an element named episode/season. Find that marker first.
