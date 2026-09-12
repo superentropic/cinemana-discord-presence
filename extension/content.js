@@ -32,24 +32,31 @@
   }
 
   function findEpisode() {
-    // Only a playback marker establishes the current episode. Menu order and
-    // selected seasons can describe browsing rather than what is playing.
-    const marked = [...document.querySelectorAll('[class*="episode" i], [class*="season" i]')]
-      .map(element => ({ element, text: clean(element.textContent) }))
-      .filter(item => /\bNow Playing\b/i.test(item.text))
-      .sort((a, b) => a.text.length - b.text.length);
-    for (const { element, text } of marked) {
-      const episode = text.match(/\bNow Playing\s*(?:Episode|Ep\.?)\s*(\d+)\b/i)?.[1];
-      if (!episode) continue;
-      // Only report a season when a containing group has exactly one season
-      // label. Ambiguous menus must not silently become Season 1.
-      let group = element;
-      for (let depth = 0; group && depth < 5; depth++, group = group.parentElement) {
-        const seasons = [...new Set([...clean(group.textContent).matchAll(/\bSeason\s*(\d+)\b/gi)].map(m => m[1]))];
-        if (seasons.length > 1) break;
-        if (seasons.length === 1) return `Season ${seasons[0]} · Episode ${episode}`;
+    const visible = element => element.getClientRects().length > 0;
+    // Cinemana puts "Now Playing" in a small child element, not consistently
+    // inside an element named episode/season. Find that marker first.
+    const markers = [...document.querySelectorAll('*')]
+      .filter(visible)
+      .filter(element => /^now playing$/i.test(clean(element.textContent)))
+      .sort((a, b) => a.getBoundingClientRect().width * a.getBoundingClientRect().height - b.getBoundingClientRect().width * b.getBoundingClientRect().height);
+    for (const marker of markers) {
+      let episode = '';
+      let item = marker;
+      for (let depth = 0; item && depth < 7; depth++, item = item.parentElement) {
+        const matches = [...clean(item.textContent).matchAll(/\b(?:episode|ep\.?)\s*(\d+)\b/gi)];
+        if (matches.length === 1) { episode = matches[0][1]; break; }
       }
-      return `Episode ${episode}`;
+      if (!episode) continue;
+
+      // Prefer the selected season control. If Cinemana does not expose one,
+      // show only the verified episode instead of guessing Season 1.
+      const seasonControls = [...document.querySelectorAll('[aria-selected="true"], [aria-current="true"], [class*="active" i], [class*="selected" i], button, [role="button"]')]
+        .filter(visible)
+        .map(element => clean(element.textContent))
+        .map(text => text.match(/^season\s*(\d+)$/i)?.[1])
+        .filter(Boolean);
+      const season = seasonControls[0] || '';
+      return season ? `Season ${season} · Episode ${episode}` : `Episode ${episode}`;
     }
     return '';
   }
