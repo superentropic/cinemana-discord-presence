@@ -13,6 +13,29 @@
   const imdbByPage = new Map();
   const episodeByVideo = new Map();
 
+  // The site changes its player URL after an episode is selected. Keep a
+  // second key based on the title so that navigation does not discard the
+  // verified label we saw on the selection screen.
+  function titleKey() {
+    return clean(document.title).replace(/\s*\|\s*Cinemana.*$/i, '').toLowerCase();
+  }
+
+  function rememberEpisode(result) {
+    if (!result) return;
+    const byVideo = `cinemana-presence:${videoKey()}`;
+    const byTitle = `cinemana-presence:title:${titleKey()}`;
+    episodeByVideo.set(videoKey(), result);
+    sessionStorage.setItem(byVideo, result);
+    if (titleKey() && titleKey() !== 'cinemana') sessionStorage.setItem(byTitle, result);
+  }
+
+  function rememberedEpisode() {
+    return episodeByVideo.get(videoKey())
+      || sessionStorage.getItem(`cinemana-presence:${videoKey()}`)
+      || (titleKey() && titleKey() !== 'cinemana' ? sessionStorage.getItem(`cinemana-presence:title:${titleKey()}`) : '')
+      || '';
+  }
+
   function videoKey() {
     const route = new URL(location.href);
     return route.searchParams.get('lastEpisodeVideoID') || route.pathname;
@@ -46,15 +69,14 @@
       .find(Boolean);
     if (exact) {
       const result = `Season ${exact[1]} · Episode ${exact[2]}`;
-      episodeByVideo.set(videoKey(), result);
-      sessionStorage.setItem(`cinemana-presence:${videoKey()}`, result);
+      rememberEpisode(result);
       return result;
     }
 
     const visible = element => element.getClientRects().length > 0;
     // Cinemana puts "Now Playing" in a small child element, not consistently
     // inside an element named episode/season. Find that marker first.
-    const markers = [...document.querySelectorAll('*')]
+    const markers = [...document.querySelectorAll('.now-playing, [class*="now-playing" i], *')]
       .filter(visible)
       .filter(element => /^now playing$/i.test(clean(element.textContent)))
       .sort((a, b) => a.getBoundingClientRect().width * a.getBoundingClientRect().height - b.getBoundingClientRect().width * b.getBoundingClientRect().height);
@@ -76,11 +98,10 @@
         .filter(Boolean);
       const season = seasonControls[0] || '';
       const result = season ? `Season ${season} · Episode ${episode}` : `Episode ${episode}`;
-      episodeByVideo.set(videoKey(), result);
-      sessionStorage.setItem(`cinemana-presence:${videoKey()}`, result);
+      rememberEpisode(result);
       return result;
     }
-    return episodeByVideo.get(videoKey()) || sessionStorage.getItem(`cinemana-presence:${videoKey()}`) || '';
+    return rememberedEpisode();
   }
 
   function findPoster(video) {
