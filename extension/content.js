@@ -11,6 +11,12 @@
   let cachedPoster = '';
   let posterCheckedAt = 0;
   const imdbByPage = new Map();
+  const episodeByVideo = new Map();
+
+  function videoKey() {
+    const route = new URL(location.href);
+    return route.searchParams.get('lastEpisodeVideoID') || route.pathname;
+  }
 
   function findImdb() {
     const links = [...new Map([...document.querySelectorAll('a[href]')].flatMap(link => {
@@ -38,7 +44,12 @@
     const exact = [...document.querySelectorAll('*')]
       .map(element => clean(element.textContent).match(/^Season:\s*(\d+)\s*\|\s*Episode:\s*(\d+)$/i))
       .find(Boolean);
-    if (exact) return `Season ${exact[1]} · Episode ${exact[2]}`;
+    if (exact) {
+      const result = `Season ${exact[1]} · Episode ${exact[2]}`;
+      episodeByVideo.set(videoKey(), result);
+      sessionStorage.setItem(`cinemana-presence:${videoKey()}`, result);
+      return result;
+    }
 
     const visible = element => element.getClientRects().length > 0;
     // Cinemana puts "Now Playing" in a small child element, not consistently
@@ -64,9 +75,12 @@
         .map(text => text.match(/^season\s*(\d+)$/i)?.[1])
         .filter(Boolean);
       const season = seasonControls[0] || '';
-      return season ? `Season ${season} · Episode ${episode}` : `Episode ${episode}`;
+      const result = season ? `Season ${season} · Episode ${episode}` : `Episode ${episode}`;
+      episodeByVideo.set(videoKey(), result);
+      sessionStorage.setItem(`cinemana-presence:${videoKey()}`, result);
+      return result;
     }
-    return '';
+    return episodeByVideo.get(videoKey()) || sessionStorage.getItem(`cinemana-presence:${videoKey()}`) || '';
   }
 
   function findPoster(video) {
